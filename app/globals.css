@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fraunces: "Fraunces", serif;
+  --font-manrope: "Manrope", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ---------- Échelle selon la taille d'écran ----------
+   Tailwind exprime tout en rem : changer la taille de police racine
+   redimensionne toute l'interface (textes, espacements, largeur max).
+   - très petits téléphones (< 360px) : légèrement réduit
+   - grands écrans / TV / 4K : agrandi pour rester lisible à distance */
+@media (max-width: 359px) {
+  html { font-size: 93.75%; }
+}
+@media (min-width: 1920px) {
+  html { font-size: 112.5%; }
+}
+@media (min-width: 2560px) {
+  html { font-size: 137.5%; }
+}
+@media (min-width: 3200px) {
+  html { font-size: 162.5%; }
+}
+
+body {
+  background-color: #fffdfb;
+  color: #2b1524;
+}
+
+/* ---------- Glassmorphisme ----------
+   Utilisé avec parcimonie : la nav sticky et les badges flottants,
+   pas partout — un seul endroit mémorable plutôt que généralisé. */
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Flou allégé sur mobile : backdrop-filter est coûteux sur les
+   téléphones d'entrée de gamme. */
+@media (max-width: 767px) {
+  .glass {
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+  }
+}
+
+.glass-dark {
+  background: rgba(43, 21, 36, 0.55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Bannière défilante ----------
+   Deux copies du contenu mises bout à bout, translatées de -50% :
+   boucle infinie sans à-coup. Mise en pause au survol pour rester
+   lisible si quelqu'un veut cliquer un lien dedans. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 26s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Déclarés ici en CSS brut (et pas seulement dans tailwind.config.ts) :
+   Tailwind ne compile les @keyframes d'un thème que si la classe utilitaire
+   correspondante (ex. animate-marquee) est effectivement utilisée quelque
+   part. Comme .marquee-track appelle "animation: marquee ..." directement,
+   sans passer par cette classe utilitaire, le keyframe n'était jamais généré
+   et l'animation ne faisait rien. */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Accessibilité : réduction de mouvement ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Soulignement animé des liens de nav ---------- */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -2px;
+  height: 2px;
+  background: #1ea5c3;
+  border-radius: 2px;
+  transition: right 0.25s ease;
+}
+.nav-link:hover::after,
+.nav-link[data-active="true"]::after {
+  right: 0;
+}
+.nav-link:hover {
+  color: #1ea5c3;
+}
+
+/* ---------- Verre léger côté bleu ----------
+   Variante glass avec teinte bleutée, utilisée sur les cartes produit
+   et certains boutons pour équilibrer le rose dominant (60/40). */
+.glass-teal {
+  background: rgba(220, 243, 246, 0.55);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(30, 165, 195, 0.18);
+}
+
+/* Impression du reçu : on masque la navigation, seul le reçu reste. */
+@media print {
+  header,
+  footer,
+  nav,
+  .no-print,
+  a[aria-label="Discuter sur WhatsApp"] {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}
