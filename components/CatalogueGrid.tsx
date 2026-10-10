@@ -13,6 +13,7 @@ export default function CatalogueGrid({
   categoryId,
   regionId,
   q,
+  brandName,
   localPaging = false,
 }: {
   initialProducts: ProductCardData[]
@@ -20,6 +21,7 @@ export default function CatalogueGrid({
   categoryId?: string
   regionId: string
   q?: string
+  brandName?: string
   // true quand la page a déjà reçu TOUS les produits filtrés (marque / prix) :
   // "Voir plus" ne fait alors qu'en révéler davantage, sans nouvel appel API.
   localPaging?: boolean
@@ -45,6 +47,7 @@ export default function CatalogueGrid({
         offset: products.length,
         categoryId,
         q,
+        brandName,
       })
       setProducts((prev) => [
         ...prev,

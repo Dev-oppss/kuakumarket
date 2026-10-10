@@ -146,6 +146,7 @@ const PRODUCT_FIELDS = "+brand.*,+categories.*"
 
 export async function searchProducts(filters: {
   q?: string
+  brandName?: string
   categoryId?: string
   categoryName?: string
   limit?: number
@@ -155,11 +156,24 @@ export async function searchProducts(filters: {
   const limit = filters.limit ?? 12
   const offset = filters.offset ?? 0
 
+  // Filtre marque : l'API Store ne renvoie pas la marque d'un produit, donc
+  // on demande à notre route /store/brand-products les ids des produits de
+  // cette marque, puis on redemande les vraies données (prix compris) à
+  // Medusa avec ces ids.
+  let brandIds: string[] | undefined
+  if (filters.brandName) {
+    const res = await sdk.client.fetch<{ product_ids: string[] }>(
+      `/store/brand-products?marque=${encodeURIComponent(filters.brandName)}`
+    )
+    if (res.product_ids.length === 0) return { products: [] as any[], count: 0 }
+    brandIds = res.product_ids
+  }
+
   // Avec un texte de recherche : passe par Meilisearch (Étape 3) pour la
   // pertinence, puis redemande les données réelles (prix compris) à
   // Medusa avec les ids trouvés — jamais de prix affiché depuis l'index
   // de recherche, voir store/search/route.ts côté backend.
-  if (filters.q) {
+  if (filters.q && !brandIds) {
     try {
       const params = new URLSearchParams({
         q: filters.q,
@@ -204,6 +218,7 @@ export async function searchProducts(filters: {
     limit,
     offset,
     fields: PRODUCT_FIELDS,
+    ...(brandIds ? { id: brandIds } : {}),
     ...(filters.categoryId ? { category_id: [filters.categoryId] } : {}),
     ...(filters.q ? { q: filters.q } : {}),
   })

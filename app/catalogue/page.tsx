@@ -77,23 +77,25 @@ async function getProducts(
     // produits avec l'ancienne limite de 100. 1000 couvre large pour
     // l'instant ; au-delà, il faudra un vrai filtre côté serveur
     // (Meilisearch, déjà prêt pour la marque, ou un filtre natif Medusa).
-    const needsOverfetch = Boolean(brandName || min != null || max != null)
+    // La marque est maintenant filtrée côté serveur (ids via /store/brand-products) :
+    // seul le prix oblige encore à sur-récupérer.
+    const needsOverfetch = Boolean(min != null || max != null)
     const { products, count } = await searchProducts({
       limit: needsOverfetch ? 1000 : 12,
       categoryId,
       categoryName,
       q,
+      brandName,
     })
     let mapped = products.map(mapProduct)
     let total = count
-    if (brandName) {
-      mapped = mapped.filter((p: ProductCardData) => p.brand === brandName)
-    }
     if (min != null) mapped = mapped.filter((p: ProductCardData) => p.price >= min)
     if (max != null) mapped = mapped.filter((p: ProductCardData) => p.price <= max)
     if (needsOverfetch) total = mapped.length
     return { products: mapped, count: total, localPaging: needsOverfetch }
-  } catch {
+  } catch (e) {
+    // Visible avec : pm2 logs kuaku-front
+    console.error("[catalogue] getProducts a échoué :", e)
     return { products: [] as ProductCardData[], count: 0, localPaging: false }
   }
 }
@@ -139,6 +141,10 @@ export default async function CataloguePage({
           </Suspense>
         </FiltersPanel>
         <CatalogueGrid
+          // key : force une grille neuve à chaque changement de filtre/recherche,
+          // sinon useState garde l'ancienne liste de produits.
+          key={JSON.stringify([categorie, recherche, marque, prix])}
+          brandName={marque}
           initialProducts={products}
           initialCount={count}
           categoryId={categoryId}
