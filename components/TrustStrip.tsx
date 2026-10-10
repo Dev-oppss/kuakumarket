@@ -2,7 +2,19 @@
 
 import { motion } from "framer-motion"
 
+// 5 cartes : 3 sur la première ligne, 2 (plus larges) sur la seconde.
+function span(i: number) {
+  if (i < 3) return "lg:col-span-2"
+  if (i === ITEMS.length - 1 && ITEMS.length % 2 === 1) return "sm:col-span-2 lg:col-span-3"
+  return "lg:col-span-3"
+}
+
 const ITEMS = [
+  {
+    icon: "🛡️",
+    title: "Produits authentiques",
+    text: "Des produits 100 % originaux, sans contrefaçon.",
+  },
   {
     icon: "📱",
     title: "Paiement local",
@@ -27,7 +39,7 @@ const ITEMS = [
 
 export default function TrustStrip() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
       {ITEMS.map((item, i) => (
         <motion.div
           key={item.title}
@@ -35,7 +47,7 @@ export default function TrustStrip() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.08, duration: 0.4 }}
-          className="flex gap-3.5 rounded-md2 bg-blush p-6 transition-transform duration-200 hover:-translate-y-1"
+          className={`flex gap-3.5 rounded-md2 bg-blush p-6 transition-transform duration-200 hover:-translate-y-1 ${span(i)}`}
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-lg">
             {item.icon}
