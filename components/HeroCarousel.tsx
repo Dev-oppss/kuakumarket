@@ -6,8 +6,8 @@ import Carousel from "./Carousel"
 import type { HeroSlide } from "@/lib/medusa"
 
 const FALLBACK_SLIDE: HeroSlide = {
-  title: "Votre rituel beauté, en un clic.",
-  subtitle: "Des soins visage, corps et cheveux sélectionnés pour toutes les carnations, livrés chez vous.",
+  title: "Votre beauté, en un clic.",
+  subtitle: "Des soins visage, corps et cheveux sélectionnés pour toutes les carnations,quelque soit l'âge, livrés chez vous.",
   cta_label: "Découvrir la boutique",
   cta_href: "/catalogue",
   image_url: "",

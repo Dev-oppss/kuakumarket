@@ -15,7 +15,7 @@ export default async function Footer() {
             <span className="font-display text-base">KuakuMarket</span>
           </div>
           <p className="mt-3.5 max-w-xs text-sm text-rose-soft/85">
-            Beauté & cosmétique pour toutes, à Douala, Yaoundé et au-delà.
+            Beauté & cosmétique pour toutes, livraison dans tout le Cameroun.
             Votre beauté en un clic.
           </p>
         </div>
@@ -35,6 +35,7 @@ export default async function Footer() {
             ["Contact", "/contact"],
             ["Suivre ma commande", "/compte"],
             ["WhatsApp", settings.whatsapp ? `https://wa.me/${settings.whatsapp}` : "#"],
+            ["Historique des commandes", "/compte"],
           ]}
         />
         <FooterColumn
