@@ -46,18 +46,19 @@ export default function Header() {
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 md:py-4">
-        <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-white/60 sm:h-11 sm:w-11">
-            <Image src="/logo.jpg" alt="KuakuMarket" fill className="object-cover" />
-          </span>
-          <span className="leading-tight">
-            <span className="block font-display text-lg leading-none">
-              Kuaku<span className="italic text-teal">Market</span>
-            </span>
-            <span className="hidden text-[0.6rem] font-bold tracking-[0.1em] text-ink-soft min-[380px]:block">
-              VOTRE BEAUTÉ EN UN CLIC
-            </span>
-          </span>
+        <Link
+          href="/"
+          aria-label="KuakuMarket — Votre beauté en un seul clic"
+          className="flex min-w-0 items-center"
+        >
+          <Image
+            src="/logo.png"
+            alt="KuakuMarket — Votre beauté en un seul clic"
+            width={900}
+            height={261}
+            priority
+            className="h-11 w-auto sm:h-12"
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

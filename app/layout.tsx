@@ -22,7 +22,7 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: "KuakuMarket — Votre beauté en un clic",
+  title: "KuakuMarket — Votre beauté en un seul clic",
   description:
     "Soins visage, corps et cheveux sélectionnés pour toutes les carnations, livrés à Douala, Yaoundé et au-delà.",
 }

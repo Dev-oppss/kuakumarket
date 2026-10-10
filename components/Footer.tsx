@@ -9,14 +9,14 @@ export default async function Footer() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full ring-1 ring-white/25">
-              <Image src="/logo.jpg" alt="KuakuMarket" fill className="object-cover" />
+            <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-white/25">
+              <Image src="/logo-icon.png" alt="KuakuMarket" fill className="object-contain p-1.5" />
             </span>
             <span className="font-display text-base">KuakuMarket</span>
           </div>
           <p className="mt-3.5 max-w-xs text-sm text-rose-soft/85">
-            Beauté & cosmétique pour toutes, livraison dans tout le Cameroun.
-            Votre beauté en un clic.
+            Beauté & cosmétique pour toutes, à Douala, Yaoundé et au-delà.
+            Votre beauté en un seul clic.
           </p>
         </div>
 
@@ -35,7 +35,6 @@ export default async function Footer() {
             ["Contact", "/contact"],
             ["Suivre ma commande", "/compte"],
             ["WhatsApp", settings.whatsapp ? `https://wa.me/${settings.whatsapp}` : "#"],
-            ["Historique des commandes", "/compte"],
           ]}
         />
         <FooterColumn
