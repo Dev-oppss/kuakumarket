@@ -54,8 +54,8 @@ export default function Header() {
             <span className="block font-display text-lg leading-none">
               Kuaku<span className="italic text-teal">Market</span>
             </span>
-            <span className="hidden text-[0.6rem] font-bold tracking-[0.16em] text-ink-soft min-[380px]:block">
-              BEAUTY IN ONE CLIC
+            <span className="hidden text-[0.6rem] font-bold tracking-[0.1em] text-ink-soft min-[380px]:block">
+              VOTRE BEAUTÉ EN UN CLIC
             </span>
           </span>
         </Link>

@@ -16,7 +16,7 @@ export default async function Footer() {
           </div>
           <p className="mt-3.5 max-w-xs text-sm text-rose-soft/85">
             Beauté & cosmétique pour toutes, à Douala, Yaoundé et au-delà.
-            Beauty in one clic.
+            Votre beauté en un clic.
           </p>
         </div>
 
