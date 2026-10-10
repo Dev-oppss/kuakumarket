@@ -23,7 +23,7 @@ const ITEMS = [
   {
     icon: "🚚",
     title: "Livraison rapide",
-    text: "Douala et Yaoundé aujourd'hui, d'autres villes bientôt.",
+    text: "Partout au Cameroun.",
   },
   {
     icon: "💬",

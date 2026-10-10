@@ -15,7 +15,7 @@ export default async function Footer() {
             <span className="font-display text-base">KuakuMarket</span>
           </div>
           <p className="mt-3.5 max-w-xs text-sm text-rose-soft/85">
-            Beauté & cosmétique pour toutes, livraison partout au cameroun.
+            Beauté & cosmétique pour toutes, livraison partout au Cameroun.
             Votre beauté en un seul clic.
           </p>
         </div>
