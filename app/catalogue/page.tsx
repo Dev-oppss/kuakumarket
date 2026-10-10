@@ -91,13 +91,10 @@ async function getProducts(
     }
     if (min != null) mapped = mapped.filter((p: ProductCardData) => p.price >= min)
     if (max != null) mapped = mapped.filter((p: ProductCardData) => p.price <= max)
-    if (needsOverfetch) {
-      total = mapped.length
-      mapped = mapped.slice(0, 12)
-    }
-    return { products: mapped, count: total }
+    if (needsOverfetch) total = mapped.length
+    return { products: mapped, count: total, localPaging: needsOverfetch }
   } catch {
-    return { products: [] as ProductCardData[], count: 0 }
+    return { products: [] as ProductCardData[], count: 0, localPaging: false }
   }
 }
 
@@ -114,7 +111,7 @@ export default async function CataloguePage({
     fetchCategories(),
     fetchBrands(),
   ])
-  const { products, count } = await getProducts(categoryId, recherche, marque, categorie, prix)
+  const { products, count, localPaging } = await getProducts(categoryId, recherche, marque, categorie, prix)
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 md:px-10">
@@ -144,7 +141,10 @@ export default async function CataloguePage({
         <CatalogueGrid
           initialProducts={products}
           initialCount={count}
-          categoryId={categoryId} regionId={await getRegionId()}
+          categoryId={categoryId}
+          regionId={await getRegionId()}
+          q={recherche}
+          localPaging={localPaging}
         />
       </div>
     </div>

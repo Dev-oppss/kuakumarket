@@ -12,24 +12,39 @@ export default function CatalogueGrid({
   initialCount,
   categoryId,
   regionId,
+  q,
+  localPaging = false,
 }: {
   initialProducts: ProductCardData[]
   initialCount: number
   categoryId?: string
   regionId: string
+  q?: string
+  // true quand la page a déjà reçu TOUS les produits filtrés (marque / prix) :
+  // "Voir plus" ne fait alors qu'en révéler davantage, sans nouvel appel API.
+  localPaging?: boolean
 }) {
   const [products, setProducts] = useState(initialProducts)
+  const [visible, setVisible] = useState(PAGE_SIZE)
   const [loading, setLoading] = useState(false)
 
-  const hasMore = products.length < initialCount
+  const shown = localPaging ? products.slice(0, visible) : products
+  const hasMore = localPaging
+    ? visible < products.length
+    : products.length < initialCount
 
   const loadMore = async () => {
+    if (localPaging) {
+      setVisible((v) => v + PAGE_SIZE)
+      return
+    }
     setLoading(true)
     try {
       const { products: next } = await searchProducts({
         limit: PAGE_SIZE,
         offset: products.length,
         categoryId,
+        q,
       })
       setProducts((prev) => [
         ...prev,
@@ -39,6 +54,7 @@ export default function CatalogueGrid({
           title: p.title,
           thumbnail: p.thumbnail ?? null,
           category: p.categories?.[0]?.name,
+          brand: p.brand?.name,
           price: p.variants?.[0]?.calculated_price?.calculated_amount ?? 0,
           originalPrice:
             p.variants?.[0]?.calculated_price?.original_amount !==
@@ -65,7 +81,7 @@ export default function CatalogueGrid({
     <div>
       <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
         <AnimatePresence>
-          {products.map((product) => (
+          {shown.map((product) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 10 }}

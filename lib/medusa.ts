@@ -139,6 +139,11 @@ export async function fetchDeliveryPoints(): Promise<DeliveryPoint[]> {
  * remplacement du corps de cette seule fonction — pas une réécriture des
  * pages qui l'utilisent.
  */
+// "+" = on AJOUTE ces champs à ceux renvoyés par défaut (prix, variantes…).
+// Sans "+brand.*", Medusa ne renvoie jamais la marque (lien custom) et le
+// filtre ?marque= trouve 0 produit.
+const PRODUCT_FIELDS = "+brand.*,+categories.*"
+
 export async function searchProducts(filters: {
   q?: string
   categoryId?: string
@@ -176,6 +181,7 @@ export async function searchProducts(filters: {
         const { products } = await sdk.store.product.list({
           id: res.product_ids,
           region_id,
+          fields: PRODUCT_FIELDS,
           ...(filters.categoryId ? { category_id: [filters.categoryId] } : {}),
         })
         // product.list ne garantit pas l'ordre des ids passés en filtre :
@@ -197,6 +203,7 @@ export async function searchProducts(filters: {
     region_id,
     limit,
     offset,
+    fields: PRODUCT_FIELDS,
     ...(filters.categoryId ? { category_id: [filters.categoryId] } : {}),
     ...(filters.q ? { q: filters.q } : {}),
   })
@@ -314,7 +321,12 @@ export async function fetchBestsellerIds(
 export async function fetchProductsByIds(ids: string[]): Promise<ProductCardData[]> {
   if (ids.length === 0) return []
   const region_id = await getRegionId()
-  const { products } = await sdk.store.product.list({ id: ids, region_id, limit: ids.length })
+  const { products } = await sdk.store.product.list({
+    id: ids,
+    region_id,
+    limit: ids.length,
+    fields: PRODUCT_FIELDS,
+  })
   const order = new Map(ids.map((id, i) => [id, i]))
   return [...products]
     .sort((a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
