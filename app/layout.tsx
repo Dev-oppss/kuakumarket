@@ -27,6 +27,11 @@ export const metadata: Metadata = {
     "Soins visage, corps et cheveux sélectionnés pour toutes les carnations, livrés à Douala, Yaoundé et au-delà.",
 }
 
+// Les pages statiques (contact, à propos…) étaient figées au moment du build :
+// les réglages du site modifiés dans l'admin n'apparaissaient jamais. Avec
+// revalidate, elles se mettent à jour d'elles-mêmes (au plus 60 s de délai).
+export const revalidate = 60
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

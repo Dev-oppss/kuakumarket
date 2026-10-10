@@ -1,6 +1,8 @@
 import { Mail, Phone, MapPin, Clock } from "lucide-react"
 import { fetchSiteSettings } from "@/lib/medusa"
 
+export const revalidate = 60
+
 const FALLBACK = {
   phone: "+237 6XX XXX XXX",
   email: "contact@kuakumarket.com",

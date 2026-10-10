@@ -34,15 +34,15 @@ export default async function Footer() {
           links={[
             ["Contact", "/contact"],
             ["Suivre ma commande", "/compte"],
-            ["WhatsApp", settings.whatsapp ? `https://wa.me/${settings.whatsapp}` : "#"],
+            ["WhatsApp", settings.whatsapp ? `https://wa.me/${settings.whatsapp}` : null],
           ]}
         />
         <FooterColumn
           title="Suivez-nous"
           links={[
-            ["Instagram", settings.instagram || "#"],
-            ["Facebook", settings.facebook || "#"],
-            ["TikTok", settings.tiktok || "#"],
+            ["Instagram", settings.instagram || null],
+            ["Facebook", settings.facebook || null],
+            ["TikTok", settings.tiktok || null],
           ]}
         />
       </div>
@@ -60,22 +60,36 @@ function FooterColumn({
   links,
 }: {
   title: string
-  links: [string, string][]
+  links: [string, string | null][]
 }) {
+  // Un lien sans adresse (réseau non renseigné dans l'admin) n'est pas affiché.
+  const visible = links.filter((l): l is [string, string] => Boolean(l[1]))
+  if (visible.length === 0) return null
   return (
     <div>
       <h4 className="text-xs font-bold tracking-wide text-white">
         {title.toUpperCase()}
       </h4>
       <ul className="mt-3.5 flex flex-col gap-2.5">
-        {links.map(([label, href]) => (
+        {visible.map(([label, href]) => (
           <li key={label}>
-            <Link
-              href={href}
-              className="text-sm text-rose-soft/85 transition-colors hover:text-white"
-            >
-              {label}
-            </Link>
+            {href.startsWith("http") ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-rose-soft/85 transition-colors hover:text-white"
+              >
+                {label}
+              </a>
+            ) : (
+              <Link
+                href={href}
+                className="text-sm text-rose-soft/85 transition-colors hover:text-white"
+              >
+                {label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>
