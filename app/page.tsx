@@ -72,7 +72,7 @@ export default async function HomePage() {
       )}
 
       {brands.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 md:px-10">
+        <section id="marques" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-10 sm:px-6 sm:py-14 md:px-10">
           <div className="mb-7 flex items-end justify-between">
             <div>
               <h2 className="font-display text-2xl">

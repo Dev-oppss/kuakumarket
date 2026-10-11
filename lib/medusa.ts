@@ -77,7 +77,12 @@ export async function getRegionId(): Promise<string> {
 
 
 export type CategoryOption = { id: string; name: string }
-export type BrandOption = { id: string; name: string }
+export type BrandOption = {
+  id: string
+  name: string
+  logo_url?: string | null
+  product_count?: number | null
+}
 export type DeliveryPoint = {
   id: string
   name: string
