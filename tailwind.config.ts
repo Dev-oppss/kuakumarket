@@ -26,6 +26,12 @@ const config: Config = {
           DEFAULT: "#1EA5C3",
           soft: "#DCF3F6",
         },
+        // Bleu du logo (mesuré sur le mot "Market"). "deep" = même teinte, plus
+        // sombre, pour les textes qui doivent rester très lisibles.
+        "logo-blue": {
+          DEFAULT: "#33A4AE",
+          deep: "#267B82",
+        },
         blush: "#FFF3F6",
         cream: "#FFFDFB",
         ink: {

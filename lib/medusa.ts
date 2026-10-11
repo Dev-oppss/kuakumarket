@@ -76,7 +76,7 @@ export async function getRegionId(): Promise<string> {
 }
 
 
-export type CategoryOption = { id: string; name: string }
+export type CategoryOption = { id: string; name: string; image_url?: string | null }
 export type BrandOption = {
   id: string
   name: string
@@ -93,16 +93,33 @@ export type DeliveryPoint = {
 
 /** Vraies catégories du catalogue, pour le filtre "Catégorie". */
 export async function fetchCategories(): Promise<CategoryOption[]> {
+  const sort = (list: CategoryOption[]) =>
+    list.sort((a, b) => a.name.localeCompare(b.name))
   try {
+    // L'image d'une catégorie est stockée dans son metadata.image_url
+    // (envoyée depuis l'admin → Images des catégories).
     const { product_categories } = await sdk.store.category.list({
       limit: 100,
-      fields: "id,name",
+      fields: "id,name,metadata",
     })
-    return product_categories
-      .map((c: any) => ({ id: c.id, name: c.name }))
-      .sort((a: CategoryOption, b: CategoryOption) => a.name.localeCompare(b.name))
+    return sort(
+      product_categories.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        image_url: c.metadata?.image_url || null,
+      }))
+    )
   } catch {
-    return []
+    // Repli : sans les images, les catégories restent affichées.
+    try {
+      const { product_categories } = await sdk.store.category.list({
+        limit: 100,
+        fields: "id,name",
+      })
+      return sort(product_categories.map((c: any) => ({ id: c.id, name: c.name })))
+    } catch {
+      return []
+    }
   }
 }
 

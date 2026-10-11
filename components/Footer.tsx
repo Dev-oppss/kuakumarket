@@ -69,7 +69,7 @@ export default async function Footer() {
     socials.push({
       label: "Email",
       href: `mailto:${settings.email}`,
-      className: "bg-white text-rose-deep",
+      className: "bg-white text-logo-blue-deep",
       external: false,
       icon: <Mail className="h-5 w-5" aria-hidden="true" />,
     })
@@ -77,22 +77,22 @@ export default async function Footer() {
     socials.push({
       label: "Appeler",
       href: `tel:${settings.phone.replace(/\s/g, "")}`,
-      className: "bg-white text-rose-deep",
+      className: "bg-white text-logo-blue-deep",
       external: false,
       icon: <Phone className="h-5 w-5" aria-hidden="true" />,
     })
 
   return (
-    <footer className="mt-10 bg-rose-deep px-4 py-10 text-cream sm:px-6 sm:py-14 md:px-10">
+    <footer className="mt-10 bg-logo-blue px-4 py-10 text-cream sm:px-6 sm:py-14 md:px-10">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-white/25">
+            <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-white/40">
               <Image src="/logo-icon.png" alt="KuakuMarket" fill className="object-contain p-1.5" />
             </span>
             <span className="font-display text-base">KuakuMarket</span>
           </div>
-          <p className="mt-3.5 max-w-xs text-sm text-rose-soft/85">
+          <p className="mt-3.5 max-w-xs text-sm text-white/95">
             Beauté & cosmétique pour toutes, livraison partout au Cameroun.
             Votre beauté en un seul clic.
           </p>
@@ -135,7 +135,7 @@ export default async function Footer() {
 
         <div>
           <h4 className="text-xs font-bold tracking-wide text-white">CONTACT</h4>
-          <ul className="mt-3.5 flex flex-col gap-2.5 text-sm text-rose-soft/85">
+          <ul className="mt-3.5 flex flex-col gap-2.5 text-sm text-white/95">
             {settings.email && (
               <li>
                 <a href={`mailto:${settings.email}`} className="transition-colors hover:text-white">
@@ -170,7 +170,7 @@ export default async function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto mt-11 max-w-7xl border-t border-white/15 pt-5 text-xs text-rose-soft/70 sm:flex sm:justify-between">
+      <div className="mx-auto mt-11 max-w-7xl border-t border-white/30 pt-5 text-xs text-white/85 sm:flex sm:justify-between">
         <span>© 2026 KuakuMarket — tous droits réservés</span>
         <span>{settings.address || "Douala, Cameroun"}</span>
       </div>
@@ -198,7 +198,7 @@ function FooterColumn({
           <li key={label}>
             <Link
               href={href}
-              className="text-sm text-rose-soft/85 transition-colors hover:text-white"
+              className="text-sm text-white/95 transition-colors hover:text-white"
             >
               {label}
             </Link>
