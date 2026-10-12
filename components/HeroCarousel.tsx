@@ -25,7 +25,30 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   return (
     <section className="relative overflow-hidden">
       <Carousel showDots slideClassName="basis-full">
-        {items.map((slide, i) => (
+        {items.map((slide, i) => {
+          const hasText = Boolean(
+            slide.title || slide.subtitle || (slide.cta_label && slide.cta_href)
+          )
+
+          // Bannière qui contient déjà son texte (rien saisi dans l'admin) :
+          // l'image seule, entière, sans panneau ni recadrage.
+          if (slide.image_url && !hasText) {
+            return (
+              <div key={i} className="relative">
+                <Image
+                  src={slide.image_url}
+                  alt=""
+                  width={1920}
+                  height={700}
+                  sizes="100vw"
+                  priority={i === 0}
+                  className="h-auto w-full"
+                />
+              </div>
+            )
+          }
+
+          return (
           <div key={i} className="relative">
             {slide.image_url && (
               // Image seule, nette : plus de dégradé par-dessus.
@@ -65,7 +88,8 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               )}
             </div>
           </div>
-        ))}
+          )
+        })}
       </Carousel>
     </section>
   )
