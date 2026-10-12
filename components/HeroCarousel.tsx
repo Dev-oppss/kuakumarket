@@ -28,14 +28,18 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         {items.map((slide, i) => (
           <div key={i} className="relative">
             {slide.image_url && (
-              <>
-                <Image src={slide.image_url} alt="" fill priority className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/80 to-cream/10" />
-              </>
+              // Image seule, nette : plus de dégradé par-dessus.
+              <Image src={slide.image_url} alt="" fill priority className="object-cover" />
             )}
 
             <div className="relative grid min-h-[22rem] items-center gap-6 px-5 py-10 sm:gap-10 sm:px-10 sm:py-14 md:py-20">
-              <div className="max-w-xl">
+              <div
+                className={
+                  slide.image_url
+                    ? "max-w-xl rounded-2xl bg-white/95 p-6 shadow-lg sm:p-8"
+                    : "max-w-xl"
+                }
+              >
                 {slide.title && (
                   <h1 className="font-display text-4xl leading-[1.05] text-ink sm:text-5xl">
                     {slide.title}
@@ -53,8 +57,12 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                   </Link>
                 )}
               </div>
-              <span className="pointer-events-none absolute right-10 top-4 text-2xl text-teal animate-floatSlow">✦</span>
-              <span className="pointer-events-none absolute bottom-10 left-4 text-xl text-rose animate-floatSlow [animation-delay:1s]">✦</span>
+              {!slide.image_url && (
+                <>
+                  <span className="pointer-events-none absolute right-10 top-4 text-2xl text-teal animate-floatSlow">✦</span>
+                  <span className="pointer-events-none absolute bottom-10 left-4 text-xl text-rose animate-floatSlow [animation-delay:1s]">✦</span>
+                </>
+              )}
             </div>
           </div>
         ))}
