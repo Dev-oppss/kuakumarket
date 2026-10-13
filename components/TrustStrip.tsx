@@ -33,7 +33,7 @@ const ITEMS = [
   {
     icon: "✓",
     title: "Avis vérifiés",
-    text: "Uniquement des notes laissées par de vraies clients.",
+    text: "Uniquement des notes laissées par de vrais clients.",
   },
 ]
 
