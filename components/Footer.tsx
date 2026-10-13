@@ -94,7 +94,6 @@ export default async function Footer() {
           </div>
           <p className="mt-3.5 max-w-xs text-sm text-white/95">
             Beauté & cosmétique pour toutes, livraison partout au Cameroun.
-            Votre beauté en un seul clic.
           </p>
           {socials.length > 0 && (
             <ul className="mt-5 flex flex-wrap gap-3">

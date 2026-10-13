@@ -13,7 +13,7 @@ const ITEMS = [
   {
     icon: "🛡️",
     title: "Produits authentiques",
-    text: "Des produits 100 % originaux, sans contrefaçon.",
+    text: "Des produits 100 % originaux, sans contrefaçon, provenant directement de laboratoires titulaires de la marque.",
   },
   {
     icon: "📱",
@@ -33,7 +33,7 @@ const ITEMS = [
   {
     icon: "✓",
     title: "Avis vérifiés",
-    text: "Uniquement des notes laissées par de vraies clientes.",
+    text: "Uniquement des notes laissées par de vraies clients.",
   },
 ]
 

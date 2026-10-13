@@ -90,7 +90,8 @@ export default async function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 md:px-10">
         <h2 className="mb-7 font-display text-2xl">
-          Pourquoi <span className="italic text-rose">KuakuMarket</span>
+          Pourquoi <span className="italic text-rose">Kuaku</span>
+          <span  className="italic text-teal">Market</span>
         </h2>
         <TrustStrip />
       </section>
