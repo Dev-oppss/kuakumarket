@@ -269,11 +269,17 @@ export type SiteSettings = {
   instagram: string | null
   facebook: string | null
   tiktok: string | null
+  youtube: string | null
   banner_messages: string[] | null
 }
 
+// Chaîne YouTube officielle : affichée tant que le champ n'a pas été
+// renseigné dans l'admin (Réglages du site). Un champ vidé volontairement
+// ("") la masque ; seul "pas de valeur" (null) déclenche ce lien par défaut.
+const DEFAULT_YOUTUBE = "https://www.youtube.com/@kuakuMarket"
+
 const DEFAULT_BANNER = [
-  "Livraison à Douala & Yaoundé",
+  "Livraison partout au Cameroun",
   "Paiement MTN MoMo & Orange Money",
   "Paiement à la livraison disponible",
   "Support WhatsApp 7j/7",
@@ -298,13 +304,14 @@ export async function fetchSiteSettings(): Promise<SiteSettings> {
       instagram: res.settings?.instagram ?? null,
       facebook: res.settings?.facebook ?? null,
       tiktok: res.settings?.tiktok ?? null,
+      youtube: res.settings?.youtube ?? DEFAULT_YOUTUBE,
       banner_messages:
         res.settings?.banner_messages?.length ? res.settings.banner_messages : DEFAULT_BANNER,
     }
   } catch {
     return {
       phone: null, whatsapp: null, email: null, address: null, hours: null,
-      instagram: null, facebook: null, tiktok: null, banner_messages: DEFAULT_BANNER,
+      instagram: null, facebook: null, tiktok: null, youtube: DEFAULT_YOUTUBE, banner_messages: DEFAULT_BANNER,
     }
   }
 }

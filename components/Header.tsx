@@ -54,8 +54,8 @@ export default function Header() {
           <Image
             src="/logo.png"
             alt="KuakuMarket — Votre beauté en un seul clic"
-            width={900}
-            height={261}
+            width={1000}
+            height={315}
             priority
             className="h-11 w-auto sm:h-12"
           />

@@ -3,9 +3,11 @@ import Image from "next/image"
 import { Facebook, Instagram, Mail, Phone } from "lucide-react"
 import { fetchSiteSettings } from "@/lib/medusa"
 
-// Tracés SVG des logos WhatsApp et TikTok (lucide-react n'a pas ces deux-là).
+// Tracés SVG des logos WhatsApp, TikTok et YouTube (lucide-react n'a pas ces trois-là).
 const WHATSAPP_PATH =
   "M16.04 3C9.4 3 4 8.4 4 15.03c0 2.12.55 4.19 1.6 6.02L4 29l8.13-1.56a12 12 0 0 0 3.9.65C22.66 28.1 28 22.7 28 16.07 28 9.4 22.68 3 16.04 3Zm0 22.05c-1.2 0-2.38-.32-3.4-.93l-.24-.15-4.83.93.98-4.7-.16-.25a9.9 9.9 0 0 1-1.5-5.3c0-5.5 4.5-9.97 10.03-9.97 5.5 0 9.97 4.5 9.97 10.03 0 5.5-4.47 10.34-10.85 10.34Zm5.47-7.46c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.67-2.08-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5s1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.08 4.5.7.3 1.26.49 1.7.63.72.23 1.37.2 1.88.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"
+const YOUTUBE_PATH =
+  "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
 const TIKTOK_PATH =
   "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"
 
@@ -65,6 +67,18 @@ export default async function Footer() {
         </svg>
       ),
     })
+  if (settings.youtube)
+    socials.push({
+      label: "YouTube",
+      href: settings.youtube,
+      className: "bg-[#FF0000] text-white",
+      external: true,
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true">
+          <path d={YOUTUBE_PATH} />
+        </svg>
+      ),
+    })
   if (settings.email)
     socials.push({
       label: "Email",
@@ -93,7 +107,7 @@ export default async function Footer() {
             <span className="font-display text-base">KuakuMarket</span>
           </div>
           <p className="mt-3.5 max-w-xs text-sm text-white/95">
-            Beauté & cosmétique pour toutes, livraison partout au Cameroun.
+            Beauté & cosmétique pour tous, livraison partout au Cameroun.
           </p>
           {socials.length > 0 && (
             <ul className="mt-5 flex flex-wrap gap-3">
