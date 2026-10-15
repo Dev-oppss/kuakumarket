@@ -145,4 +145,30 @@ body {
   body {
     background: #fff !important;
   }
+  /* Reçu : une feuille A4 par page imprimée, sans marges ni mise à l'échelle. */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  .recu-print-root {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .recu-viewport {
+    height: auto !important;
+  }
+  .recu-scaler {
+    transform: none !important;
+    gap: 0 !important;
+  }
+  .recu-page {
+    break-after: page;
+    page-break-after: always;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .recu-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
 }

@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { sdk } from "@/lib/medusa"
 import { getCurrentCustomer } from "@/lib/auth"
-import { formatFCFA } from "@/lib/format"
+import ReceiptSheets from "@/components/ReceiptSheet"
+import { downloadReceiptPdf } from "@/lib/receipt-pdf"
 
 const STEPS = [
   { key: "nouvelle", label: "Commande reçue" },
@@ -21,11 +22,6 @@ const EXCEPTIONS: Record<string, string> = {
   retour: "Cette commande a été retournée.",
 }
 
-const PAYMENT_LABELS: Record<string, string> = {
-  cash_on_delivery: "Paiement à la livraison",
-  in_store: "Paiement en boutique",
-}
-
 type Tracking = {
   delivery_stage: { stage: string; note: string | null; updated_at: string } | null
   delivery_point: { name: string; city: string; fee: number; estimated_delay: string | null } | null
@@ -33,8 +29,8 @@ type Tracking = {
 }
 
 /**
- * Suivi de commande + reçu imprimable (Ctrl+P / bouton → "Enregistrer en
- * PDF"). Le suivi montre où en est la commande étape par étape avec la
+ * Suivi de commande + reçu (papier à en-tête KuakuMarket, A4) à voir, imprimer
+ * ou télécharger en PDF. Le suivi montre où en est la commande étape par étape avec la
  * date de dernière mise à jour, pour que la cliente voie que ça avance
  * réellement — le but est d'éviter l'impression d'arnaque.
  */
@@ -44,6 +40,20 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<any>(null)
   const [tracking, setTracking] = useState<Tracking | null>(null)
   const [notFound, setNotFound] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const autoDownloaded = useRef(false)
+
+  const download = useCallback(async (o: any) => {
+    setDownloading(true)
+    try {
+      await downloadReceiptPdf(o.display_id)
+    } catch {
+      // Repli : la boîte d'impression permet aussi "Enregistrer en PDF".
+      window.print()
+    } finally {
+      setDownloading(false)
+    }
+  }, [])
 
   useEffect(() => {
     ;(async () => {
@@ -68,6 +78,20 @@ export default function OrderDetailPage() {
     })()
   }, [id, router])
 
+  // Arrivée depuis l'écran de confirmation : #recu fait défiler jusqu'au reçu,
+  // ?telecharger=1 lance directement le téléchargement du PDF.
+  useEffect(() => {
+    if (!order) return
+    if (window.location.hash === "#recu") {
+      document.getElementById("recu")?.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+    if (new URLSearchParams(window.location.search).get("telecharger") === "1" && !autoDownloaded.current) {
+      autoDownloaded.current = true
+      // laisse le temps aux images (fond, logo) de se charger avant la capture
+      setTimeout(() => download(order), 800)
+    }
+  }, [order, download])
+
   if (notFound) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
@@ -86,15 +110,24 @@ export default function OrderDetailPage() {
   const addr = order.shipping_address
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
+    <div className="recu-print-root mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
       <div className="no-print mb-6 flex items-center justify-between">
         <Link href="/compte" className="text-sm font-bold text-rose-deep">← Mes commandes</Link>
-        <button
-          onClick={() => window.print()}
-          className="rounded-full bg-rose px-5 py-2.5 text-sm font-bold text-white shadow-glow transition-all hover:bg-teal active:scale-95"
-        >
-          Imprimer / enregistrer le reçu
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => download(order)}
+            disabled={downloading}
+            className="rounded-full bg-rose px-5 py-2.5 text-sm font-bold text-white shadow-glow transition-all hover:bg-teal active:scale-95 disabled:opacity-60"
+          >
+            {downloading ? "Préparation…" : "Télécharger le reçu (PDF)"}
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="rounded-full border border-rose px-4 py-2.5 text-sm font-bold text-rose-deep transition-all hover:bg-rose-soft active:scale-95"
+          >
+            Imprimer
+          </button>
+        </div>
       </div>
 
       {/* SUIVI */}
@@ -143,84 +176,9 @@ export default function OrderDetailPage() {
       </section>
 
       {/* REÇU */}
-      <section className="glass rounded-lg2 p-6 print:rounded-none print:bg-white print:shadow-none">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="font-display text-2xl">KuakuMarket</h1>
-            <p className="text-xs text-ink-soft">Reçu de commande</p>
-          </div>
-          <div className="text-right text-sm">
-            <p className="font-bold text-ink">Commande #{order.display_id}</p>
-            <p className="text-xs text-ink-soft">{new Date(order.created_at).toLocaleDateString("fr-FR")}</p>
-          </div>
-        </div>
-
-        <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-xs font-bold uppercase text-ink-soft">Client</p>
-            <p>{[addr?.first_name, addr?.last_name].filter(Boolean).join(" ") || order.email}</p>
-            <p className="text-ink-soft">{order.email}</p>
-            {addr?.phone && <p className="text-ink-soft">{addr.phone}</p>}
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase text-ink-soft">Livraison</p>
-            {tracking?.delivery_point ? (
-              <>
-                <p>{tracking.delivery_point.name}</p>
-                <p className="text-ink-soft">{tracking.delivery_point.city}</p>
-              </>
-            ) : (
-              <p className="text-ink-soft">—</p>
-            )}
-            {addr?.address_1 && <p className="text-ink-soft">{addr.address_1}</p>}
-          </div>
-        </div>
-
-        <table className="mt-6 w-full text-sm">
-          <thead>
-            <tr className="border-b border-rose-soft text-left text-xs uppercase text-ink-soft">
-              <th className="py-2">Article</th>
-              <th className="py-2 text-center">Qté</th>
-              <th className="py-2 text-right">Prix unitaire</th>
-              <th className="py-2 text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(order.items ?? []).map((it: any) => (
-              <tr key={it.id} className="border-b border-rose-soft/50">
-                <td className="py-2.5 pr-2">{it.title}</td>
-                <td className="py-2.5 text-center">{it.quantity}</td>
-                <td className="py-2.5 text-right">{formatFCFA(it.unit_price)}</td>
-                <td className="py-2.5 text-right">{formatFCFA(it.unit_price * it.quantity)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="mt-4 ml-auto w-full max-w-xs text-sm">
-          <Row label="Sous-total" value={formatFCFA(order.subtotal ?? 0)} />
-          <Row label="Livraison" value={formatFCFA(order.shipping_total ?? tracking?.delivery_point?.fee ?? 0)} />
-          <div className="mt-1 flex justify-between border-t border-ink pt-2 font-display text-lg font-semibold">
-            <span>Total</span>
-            <span>{formatFCFA(order.total)}</span>
-          </div>
-        </div>
-
-        <p className="mt-6 rounded-lg bg-blush px-3.5 py-2.5 text-xs text-ink-soft print:border print:border-rose-soft print:bg-white">
-          {PAYMENT_LABELS[tracking?.payment_method ?? ""] ?? "Paiement"} — montant à régler :{" "}
-          <span className="font-bold text-ink">{formatFCFA(order.total)}</span>. Ce reçu confirme votre
-          commande ; il ne vaut pas facture fiscale.
-        </p>
+      <section id="recu" className="scroll-mt-24">
+        <ReceiptSheets order={order} tracking={tracking} />
       </section>
-    </div>
-  )
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between py-1 text-ink-soft">
-      <span>{label}</span>
-      <span>{value}</span>
     </div>
   )
 }

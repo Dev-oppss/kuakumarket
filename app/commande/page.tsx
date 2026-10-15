@@ -242,11 +242,22 @@ export default function CommandePage() {
               {selectedPoint.estimated_delay ? ` — ${selectedPoint.estimated_delay}` : ""}
             </p>
           )}
-          <Link
-            href={`/compte/commandes/${order.id}`}
-            className="mt-7 inline-block rounded-full bg-rose px-7 py-3.5 text-sm font-bold text-white shadow-glow transition-all hover:scale-105 hover:bg-teal active:scale-95"
-          >
-            Suivre ma commande et voir le reçu
+          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href={`/compte/commandes/${order.id}#recu`}
+              className="inline-block rounded-full bg-rose px-7 py-3.5 text-sm font-bold text-white shadow-glow transition-all hover:scale-105 hover:bg-teal active:scale-95"
+            >
+              Voir le reçu
+            </Link>
+            <Link
+              href={`/compte/commandes/${order.id}?telecharger=1#recu`}
+              className="inline-block rounded-full border-2 border-rose px-7 py-3 text-sm font-bold text-rose-deep transition-all hover:scale-105 hover:bg-rose-soft active:scale-95"
+            >
+              Télécharger le reçu (PDF)
+            </Link>
+          </div>
+          <Link href={`/compte/commandes/${order.id}`} className="mt-5 inline-block text-sm font-bold text-rose-deep underline">
+            Suivre ma commande
           </Link>
         </div>
       )}
