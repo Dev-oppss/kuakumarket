@@ -18,7 +18,7 @@ function getVisitorId(): string {
     }
     return id
   } catch {
-    return "anon"
+    return "anonymous-visitor"
   }
 }
 
@@ -34,13 +34,19 @@ export function track(type: EventType, opts: { path?: string; target?: string; p
       visitor_id: getVisitorId(),
     })
     const url = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/site-events`
-    // sendBeacon ne bloque jamais la navigation (utile sur un clic qui
-    // quitte immédiatement la page) ; repli sur fetch si indisponible.
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(url, new Blob([body], { type: "application/json" }))
-    } else {
-      fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true })
-    }
+    // Medusa exige l'en-tête x-publishable-api-key sur TOUTES les routes
+    // /store. navigator.sendBeacon ne permet pas d'ajouter d'en-tête : les
+    // évènements étaient donc tous rejetés (400). fetch + keepalive envoie
+    // l'en-tête ET survit à une navigation, comme sendBeacon.
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+      },
+      body,
+      keepalive: true,
+    }).catch(() => {})
   } catch {
     // le suivi ne doit jamais faire planter la navigation
   }
