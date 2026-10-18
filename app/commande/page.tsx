@@ -5,10 +5,18 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { getCart, updateCartCheckoutInfo, listShippingOptions, addShippingMethod, initiateManualPayment, completeCart } from "@/lib/cart"
 import { getCurrentCustomer } from "@/lib/auth"
-import { fetchDeliveryPoints, type DeliveryPoint } from "@/lib/medusa"
+import { fetchDeliveryPoints, fetchSiteSettings, type DeliveryPoint } from "@/lib/medusa"
 import { formatFCFA } from "@/lib/format"
 
 type Step = "infos" | "livraison" | "confirmation"
+
+/**
+ * Lancement simplifié : pas de choix de point de livraison. L'adresse /
+ * quartier saisie à l'étape 1 sert de lieu de livraison et les frais sont
+ * fixés par la boutique via WhatsApp. Pour réactiver les points de livraison
+ * (avec leurs frais), construire le site avec NEXT_PUBLIC_DELIVERY_POINTS=true.
+ */
+const USE_POINTS = process.env.NEXT_PUBLIC_DELIVERY_POINTS === "true"
 
 /**
  * Tunnel de commande en 3 étapes (spec point 8) : infos → livraison /
@@ -40,13 +48,20 @@ export default function CommandePage() {
     "cash_on_delivery"
   )
   const [submitting, setSubmitting] = useState(false)
+  const [whatsapp, setWhatsapp] = useState("")
+
+  useEffect(() => {
+    fetchSiteSettings()
+      .then((s) => setWhatsapp(s.whatsapp ?? ""))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     ;(async () => {
       const [customer, c, points] = await Promise.all([
         getCurrentCustomer(),
         getCart(),
-        fetchDeliveryPoints(),
+        USE_POINTS ? fetchDeliveryPoints() : Promise.resolve([] as DeliveryPoint[]),
       ])
       if (!customer) {
         router.replace("/compte?redirect=/commande")
@@ -77,21 +92,22 @@ export default function CommandePage() {
   }
 
   const handleConfirm = async () => {
-    if (!cart || !selectedPointId) return
+    if (!cart || (USE_POINTS && !selectedPointId)) return
     setSubmitting(true)
     setError(null)
     try {
       await updateCartCheckoutInfo(cart.id, {
         ...infos,
-        delivery_point_id: selectedPointId,
+        delivery_point_id: USE_POINTS ? selectedPointId : undefined,
         country_code: "cm",
       })
 
       const options = await listShippingOptions(cart.id)
       if (options.length === 0) {
-        throw new Error(
-          "Aucune méthode d'expédition n'est configurée pour cette région (Settings → Shipping dans l'admin)."
-        )
+        // Medusa exige une méthode d'expédition pour finaliser (même à 0 FCFA) :
+        // c'est un réglage de l'admin, pas une erreur de la cliente.
+        console.error("[commande] aucune méthode d'expédition (Settings → Locations & Shipping dans l'admin)")
+        throw new Error("La commande est momentanément indisponible. Écrivez-nous sur WhatsApp, nous la prenons en charge.")
       }
       await addShippingMethod(cart.id, options[0].id)
       await initiateManualPayment(cart.id, paymentMethod)
@@ -116,7 +132,7 @@ export default function CommandePage() {
         <ol className="mb-8 flex items-center justify-center gap-2 text-xs font-bold text-ink-soft">
           <StepDot active={step === "infos"} done={step === "livraison"} label="Infos" />
           <span className="h-px w-8 bg-rose-soft" />
-          <StepDot active={step === "livraison"} done={false} label="Livraison" />
+          <StepDot active={step === "livraison"} done={false} label={USE_POINTS ? "Livraison" : "Paiement"} />
         </ol>
       )}
 
@@ -135,19 +151,35 @@ export default function CommandePage() {
             <Field label="Ville" value={infos.city} onChange={(v) => setInfos((f) => ({ ...f, city: v }))} required full />
           </div>
           <button type="submit" className="mt-7 w-full rounded-full bg-rose py-3.5 text-sm font-bold text-white shadow-glow transition-all hover:scale-[1.02] hover:bg-teal active:scale-95">
-            Continuer vers la livraison
+            {USE_POINTS ? "Continuer vers la livraison" : "Continuer vers le paiement"}
           </button>
         </form>
       )}
 
       {step === "livraison" && (
         <div className="glass rounded-lg2 p-6 sm:p-8">
-          <h1 className="font-display text-2xl">Livraison et paiement</h1>
+          <h1 className="font-display text-2xl">{USE_POINTS ? "Livraison et paiement" : "Paiement"}</h1>
 
-          <h2 className="mt-6 text-xs font-bold uppercase tracking-wide text-ink-soft">
-            Point de livraison
-          </h2>
-          {deliveryPoints.length === 0 ? (
+          {!USE_POINTS && (
+            <div className="mt-5 rounded-xl border-2 border-rose-soft/60 bg-white/60 px-4 py-3 text-sm">
+              <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Livraison à</p>
+              <p className="mt-1 font-semibold text-ink">
+                {infos.address_1}, {infos.city}
+              </p>
+              <p className="mt-0.5 text-ink-soft">{infos.phone}</p>
+              <p className="mt-2 text-xs text-ink-soft">
+                Les frais de livraison sont fixés par la boutique et vous seront communiqués par WhatsApp
+                avant l'envoi. Ils ne sont pas inclus dans le total.
+              </p>
+            </div>
+          )}
+
+          {USE_POINTS && (
+            <h2 className="mt-6 text-xs font-bold uppercase tracking-wide text-ink-soft">
+              Point de livraison
+            </h2>
+          )}
+          {!USE_POINTS ? null : deliveryPoints.length === 0 ? (
             <p className="mt-2 text-sm text-ink-soft">
               Aucun point de livraison n'est configuré pour le moment.
             </p>
@@ -217,7 +249,7 @@ export default function CommandePage() {
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={!selectedPointId || submitting}
+              disabled={(USE_POINTS && !selectedPointId) || submitting}
               className="flex-1 rounded-full bg-rose py-3.5 text-sm font-bold text-white shadow-glow transition-all hover:scale-[1.02] hover:bg-teal active:scale-95 disabled:opacity-60"
             >
               {submitting ? "Un instant…" : "Confirmer la commande"}
@@ -236,11 +268,26 @@ export default function CommandePage() {
               ? " Vous réglerez à la livraison."
               : " Vous réglerez au retrait en boutique."}
           </p>
-          {selectedPoint && (
+          {selectedPoint ? (
             <p className="mt-3 text-sm text-ink-soft">
               Livraison : <span className="font-semibold text-ink">{selectedPoint.name}</span>
               {selectedPoint.estimated_delay ? ` — ${selectedPoint.estimated_delay}` : ""}
             </p>
+          ) : (
+            <p className="mt-3 text-sm text-ink-soft">
+              Livraison à <span className="font-semibold text-ink">{infos.address_1}, {infos.city}</span>.
+              Nous vous écrivons sur WhatsApp pour confirmer les frais de livraison.
+            </p>
+          )}
+          {!selectedPoint && whatsapp && (
+            <a
+              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Bonjour, je viens de passer la commande #${order.display_id}. Pouvez-vous me confirmer les frais de livraison ?`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-block rounded-full bg-[#25D366] px-7 py-3.5 text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
+            >
+              Confirmer la livraison sur WhatsApp
+            </a>
           )}
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link

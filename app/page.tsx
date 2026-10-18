@@ -35,14 +35,14 @@ export default async function HomePage() {
     <div className="pb-16">
       <HeroCarousel slides={homepage.hero_slides} />
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 md:px-10">
+      {/* <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 md:px-10">
         <div className="mb-7 flex items-end justify-between">
           <h2 className="font-display text-2xl">
             Parcourir par <span className="italic text-rose">zone d'application</span>
           </h2>
         </div>
         <ZonePills />
-      </section>
+      </section> */}
 
       <ProductSection title="Nos" highlight="indispensables" products={featured} />
 

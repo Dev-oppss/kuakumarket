@@ -173,7 +173,7 @@ export default function PanierPage() {
             </div>
             <div className="mt-2.5 flex justify-between text-sm text-ink-soft">
               <span>Livraison</span>
-              <span>Calculée à l'étape suivante</span>
+              <span>Confirmée par WhatsApp</span>
             </div>
             <div className="mt-6 flex justify-between border-t border-rose-soft pt-4 text-base font-extrabold">
               <span>Total</span>

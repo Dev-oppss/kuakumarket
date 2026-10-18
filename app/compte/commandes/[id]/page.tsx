@@ -66,7 +66,7 @@ export default function OrderDetailPage() {
         const [{ order }, tracking] = await Promise.all([
           sdk.store.order.retrieve(id, {
             fields:
-              "id,display_id,created_at,email,total,subtotal,shipping_total,*items,*shipping_address",
+              "id,display_id,created_at,email,total,subtotal,shipping_total,metadata,*items,*shipping_address",
           }),
           sdk.client.fetch<Tracking>(`/store/orders/${id}/delivery-stage`),
         ])

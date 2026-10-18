@@ -172,6 +172,7 @@ function Page({
   const addr = order.shipping_address
   const date = new Date(order.created_at).toLocaleDateString("fr-FR")
   const clientName = [addr?.first_name, addr?.last_name].filter(Boolean).join(" ") || order.email
+  const shippingKnown = Number(order.shipping_total ?? 0) > 0
   const label = { fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6, color: TEAL, textTransform: "uppercase" as const }
 
   return (
@@ -236,9 +237,13 @@ function Page({
                   )}
                 </>
               ) : (
-                <p style={{ margin: "4px 0 0", color: SOFT }}>—</p>
+                <p style={{ margin: "4px 0 0", fontWeight: 600 }}>
+                  {[addr?.address_1, addr?.city].filter(Boolean).join(", ") || "—"}
+                </p>
               )}
-              {addr?.address_1 && <p style={{ margin: "1px 0 0", color: SOFT }}>{addr.address_1}</p>}
+              {tracking?.delivery_point && addr?.address_1 && (
+                <p style={{ margin: "1px 0 0", color: SOFT }}>{addr.address_1}</p>
+              )}
             </div>
           </div>
         )}
@@ -275,7 +280,7 @@ function Page({
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", color: SOFT }}>
                 <span>Livraison</span>
-                <span>{formatFCFA(order.shipping_total ?? tracking?.delivery_point?.fee ?? 0)}</span>
+                <span>{shippingKnown ? formatFCFA(order.shipping_total) : "À confirmer (WhatsApp)"}</span>
               </div>
               <div
                 style={{
@@ -303,9 +308,12 @@ function Page({
                 lineHeight: 1.45,
               }}
             >
-              {PAYMENT_LABELS[tracking?.payment_method ?? ""] ?? "Paiement"} — montant à régler :{" "}
-              <strong style={{ color: INK }}>{formatFCFA(order.total)}</strong>. Ce reçu confirme votre commande ; il
-              ne vaut pas facture fiscale.
+              {PAYMENT_LABELS[(order.metadata?.payment_method as string) ?? tracking?.payment_method ?? ""] ?? "Paiement"} —{" "}
+              {shippingKnown ? "montant à régler" : "montant des articles"} :{" "}
+              <strong style={{ color: INK }}>{formatFCFA(order.total)}</strong>.{" "}
+              {shippingKnown
+                ? "Ce reçu confirme votre commande ; il ne vaut pas facture fiscale."
+                : "Les frais de livraison, confirmés par WhatsApp, s'y ajoutent. Ce reçu confirme votre commande ; il ne vaut pas facture fiscale."}
             </p>
           </>
         )}
