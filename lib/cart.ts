@@ -81,7 +81,7 @@ export async function updateCartCheckoutInfo(
     phone: string
     address_1: string
     city: string
-    delivery_point_id: string
+    delivery_point_id?: string
     country_code: string
   }
 ) {
@@ -95,7 +95,8 @@ export async function updateCartCheckoutInfo(
       city: data.city,
       country_code: data.country_code,
     },
-    metadata: { delivery_point_id: data.delivery_point_id },
+    // Sans point de livraison (lancement : l'adresse saisie suffit), on ne touche pas aux métadonnées.
+    ...(data.delivery_point_id ? { metadata: { delivery_point_id: data.delivery_point_id } } : {}),
   })
   return cart
 }

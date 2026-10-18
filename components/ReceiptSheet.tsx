@@ -18,8 +18,8 @@ const GAP = 24
 
 const PINK = "#E91E78"
 const TEAL = "#1AA7AE"
-const INK = "#2B2430"
-const SOFT = "#7A6F80"
+const INK = "#1A1A1A"
+const SOFT = "#5A5A5A"
 
 const PAYMENT_LABELS: Record<string, string> = {
   cash_on_delivery: "Paiement à la livraison",
@@ -173,7 +173,7 @@ function Page({
   const date = new Date(order.created_at).toLocaleDateString("fr-FR")
   const clientName = [addr?.first_name, addr?.last_name].filter(Boolean).join(" ") || order.email
   const shippingKnown = Number(order.shipping_total ?? 0) > 0
-  const label = { fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6, color: TEAL, textTransform: "uppercase" as const }
+  const label = { fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6, color: INK, textTransform: "uppercase" as const }
 
   return (
     <div
@@ -204,7 +204,7 @@ function Page({
       <div style={{ position: "absolute", left: 62, right: 62, top: 178, bottom: 190 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
           <div>
-            <h1 className="font-display" style={{ fontSize: 26, lineHeight: 1.1, color: PINK, margin: 0 }}>
+            <h1 className="font-display" style={{ fontSize: 26, lineHeight: 1.1, color: INK, margin: 0 }}>
               Reçu de commande
             </h1>
             <p style={{ margin: "4px 0 0", color: SOFT, fontSize: 11 }}>
@@ -216,7 +216,7 @@ function Page({
             <p style={{ margin: "2px 0 0", color: SOFT, fontSize: 11 }}>{date}</p>
           </div>
         </div>
-        <div style={{ height: 2, margin: "12px 0 16px", background: `linear-gradient(90deg, ${PINK}, ${TEAL})` }} />
+        <div style={{ height: 2, margin: "12px 0 16px", background: `linear-gradient(90deg, ${INK})` }} />
 
         {index === 0 && (
           <div style={{ display: "flex", gap: 24, marginBottom: 18 }}>
@@ -251,7 +251,7 @@ function Page({
         {rows.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
           <thead>
-            <tr style={{ borderBottom: `2px solid ${TEAL}`, textAlign: "left", color: TEAL, fontSize: 10, textTransform: "uppercase" }}>
+            <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: "left", color: INK, fontSize: 10, textTransform: "uppercase" }}>
               <th style={{ padding: "6px 0" }}>Article</th>
               <th style={{ padding: "6px 0", textAlign: "center", width: 44 }}>Qté</th>
               <th style={{ padding: "6px 0", textAlign: "right", width: 105 }}>Prix unitaire</th>
@@ -260,7 +260,7 @@ function Page({
           </thead>
           <tbody>
             {rows.map((it: any) => (
-              <tr key={it.id} style={{ borderBottom: "1px solid #F1D9E4" }}>
+              <tr key={it.id} style={{ borderBottom: "1px solid #CCCCCC" }}>
                 <td style={{ padding: "8px 8px 8px 0" }}>{it.title}</td>
                 <td style={{ padding: "8px 0", textAlign: "center" }}>{it.quantity}</td>
                 <td style={{ padding: "8px 0", textAlign: "right" }}>{formatFCFA(it.unit_price)}</td>
@@ -288,13 +288,13 @@ function Page({
                   justifyContent: "space-between",
                   marginTop: 6,
                   paddingTop: 8,
-                  borderTop: `2px solid ${PINK}`,
+                  borderTop: `2px solid ${INK}`,
                   fontSize: 17,
                   fontWeight: 700,
                 }}
               >
                 <span>Total</span>
-                <span style={{ color: PINK }}>{formatFCFA(order.total)}</span>
+                <span>{formatFCFA(order.total)}</span>
               </div>
             </div>
             <p
