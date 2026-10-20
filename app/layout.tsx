@@ -7,6 +7,7 @@ import ScrollingBanner from "@/components/ScrollingBanner"
 import BottomNav from "@/components/BottomNav"
 import WhatsAppButton from "@/components/WhatsAppButton"
 import PageViewTracker from "@/components/PageViewTracker"
+import LocationPrompt from "@/components/LocationPrompt"
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -56,6 +57,7 @@ export default function RootLayout({
         <BottomNav />
         {/* Fréquentation (visites, pages vues) — intégré à Medusa, pas d'outil tiers */}
         <PageViewTracker />
+        <LocationPrompt />
       </body>
     </html>
   )

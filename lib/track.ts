@@ -22,6 +22,16 @@ function getVisitorId(): string {
   }
 }
 
+/** Pays / ville indiqués par le visiteur dans la notification (voir components/LocationPrompt.tsx). */
+function getDeclaredLocation(): { country?: string; city?: string } {
+  try {
+    const v = JSON.parse(window.localStorage.getItem("kuaku_location") ?? "null")
+    return v?.country ? { country: v.country, city: v.city } : {}
+  } catch {
+    return {}
+  }
+}
+
 type EventType = "page_view" | "product_view" | "product_click" | "add_to_cart" | "link_click"
 
 export function track(type: EventType, opts: { path?: string; target?: string; productId?: string } = {}) {
@@ -32,6 +42,7 @@ export function track(type: EventType, opts: { path?: string; target?: string; p
       target: opts.target,
       product_id: opts.productId,
       visitor_id: getVisitorId(),
+      ...getDeclaredLocation(),
     })
     const url = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/site-events`
     // Medusa exige l'en-tête x-publishable-api-key sur TOUTES les routes
