@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, ShoppingBag, Menu, X } from "lucide-react"
+import { User, ShoppingBag, Menu, Search, X } from "lucide-react"
 import SearchBar from "@/components/SearchBar"
 import clsx from "clsx"
 import { getCart } from "@/lib/cart"
@@ -19,6 +19,7 @@ const NAV = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function Header() {
             width={1000}
             height={315}
             priority
-            className="h-11 w-auto sm:h-12"
+            className="h-10 w-auto sm:h-12"
           />
         </Link>
 
@@ -73,15 +74,27 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
           <div className="hidden lg:block">
             <SearchBar />
           </div>
 
+          <button
+            aria-label="Rechercher"
+            aria-expanded={searchOpen}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-soft text-rose-deep transition-all hover:scale-110 hover:bg-teal-soft hover:text-teal lg:hidden"
+            onClick={() => {
+              setSearchOpen((v) => !v)
+              setMobileOpen(false)
+            }}
+          >
+            {searchOpen ? <X className="h-4 w-4" strokeWidth={2} /> : <Search className="h-4 w-4" strokeWidth={2} />}
+          </button>
+
           <Link
             href="/compte"
             aria-label="Mon compte"
-            className="hidden h-9 w-9 items-center justify-center rounded-full bg-rose-soft text-rose-deep transition-all hover:scale-110 hover:bg-teal-soft hover:text-teal md:flex"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-soft text-rose-deep transition-all hover:scale-110 hover:bg-teal-soft hover:text-teal max-[359px]:hidden md:h-9 md:w-9"
           >
             <User className="h-4 w-4" strokeWidth={2} />
           </Link>
@@ -89,7 +102,7 @@ export default function Header() {
           <Link
             href="/panier"
             aria-label="Panier"
-            className="glass-teal relative flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-sm font-bold text-ink-soft shadow-glow transition-transform hover:scale-105 active:scale-95 sm:px-5 md:h-auto md:py-2.5"
+            className="glass-teal relative flex h-10 min-w-10 items-center justify-center gap-2 rounded-full px-3 text-sm font-bold text-ink-soft shadow-glow transition-transform hover:scale-105 active:scale-95 sm:px-5 md:h-auto md:py-2.5"
           >
             <ShoppingBag className="h-4 w-4" strokeWidth={2} />
             <span className="hidden sm:inline">Panier</span>
@@ -102,9 +115,12 @@ export default function Header() {
 
           <button
             aria-label="Menu"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-rose-soft text-rose-deep md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-soft text-rose-deep md:hidden"
             aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={() => {
+              setMobileOpen((v) => !v)
+              setSearchOpen(false)
+            }}
           >
             {mobileOpen ? (
               <X className="h-4 w-4" strokeWidth={2} />
@@ -116,6 +132,22 @@ export default function Header() {
       </div>
 
       <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="glass overflow-hidden lg:hidden"
+          >
+            <div className="px-4 py-3 sm:px-6">
+              <SearchBar full autoFocus onSubmit={() => setSearchOpen(false)} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {mobileOpen && (
           <motion.nav
             initial={{ height: 0, opacity: 0 }}
@@ -125,9 +157,6 @@ export default function Header() {
             className="glass md:hidden overflow-hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-4 sm:px-6">
-              <div className="mb-2">
-                <SearchBar full onSubmit={() => setMobileOpen(false)} />
-              </div>
               {NAV.map((item) => (
                 <Link
                   key={item.href}

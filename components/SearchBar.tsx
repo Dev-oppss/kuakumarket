@@ -8,13 +8,16 @@ import { Search, X } from "lucide-react"
 /**
  * Champ de recherche relié au catalogue : envoie ?recherche=... sur
  * /catalogue avec un léger anti-rebond, pour ne pas naviguer à chaque
- * frappe. `full` = variante pleine largeur utilisée dans le menu mobile.
+ * frappe. `full` = variante pleine largeur utilisée sur téléphone (panneau ouvert
+ * par la loupe de l'en-tête).
  */
 function SearchBarInner({
   full = false,
+  autoFocus = false,
   onSubmit,
 }: {
   full?: boolean
+  autoFocus?: boolean
   onSubmit?: () => void
 }) {
   const router = useRouter()
@@ -58,6 +61,7 @@ function SearchBarInner({
       <Search className="h-4 w-4 shrink-0 text-teal" strokeWidth={2} />
       <input
         type="search"
+        autoFocus={autoFocus}
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Rechercher un soin, une marque…"
@@ -84,7 +88,7 @@ function SearchBarInner({
   )
 }
 
-export default function SearchBar(props: { full?: boolean; onSubmit?: () => void }) {
+export default function SearchBar(props: { full?: boolean; autoFocus?: boolean; onSubmit?: () => void }) {
   // useSearchParams doit être sous Suspense en dehors des pages, sinon
   // Next.js fait échouer le build ("missing Suspense boundary").
   return (
