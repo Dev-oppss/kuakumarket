@@ -24,6 +24,7 @@ const SOFT = "#5A5A5A"
 const PAYMENT_LABELS: Record<string, string> = {
   cash_on_delivery: "Paiement à la livraison",
   in_store: "Paiement en boutique",
+  mobile_money: "Paiement Mobile Money",
 }
 
 type Tracking = {

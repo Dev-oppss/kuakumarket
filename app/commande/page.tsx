@@ -7,6 +7,7 @@ import { getCart, updateCartCheckoutInfo, listShippingOptions, addShippingMethod
 import { getCurrentCustomer } from "@/lib/auth"
 import { fetchDeliveryPoints, fetchSiteSettings, type DeliveryPoint } from "@/lib/medusa"
 import { formatFCFA } from "@/lib/format"
+import MobileMoneyInstructions, { isValidReference } from "@/components/MobileMoneyInstructions"
 
 type Step = "infos" | "livraison" | "confirmation"
 
@@ -44,9 +45,11 @@ export default function CommandePage() {
 
   const [deliveryPoints, setDeliveryPoints] = useState<DeliveryPoint[]>([])
   const [selectedPointId, setSelectedPointId] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<"cash_on_delivery" | "in_store">(
+  const [paymentMethod, setPaymentMethod] = useState<"cash_on_delivery" | "in_store" | "mobile_money">(
     "cash_on_delivery"
   )
+  const [payAmount, setPayAmount] = useState(0)
+  const [paymentRef, setPaymentRef] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [whatsapp, setWhatsapp] = useState("")
 
@@ -110,12 +113,13 @@ export default function CommandePage() {
         throw new Error("La commande est momentanément indisponible. Écrivez-nous sur WhatsApp, nous la prenons en charge.")
       }
       await addShippingMethod(cart.id, options[0].id)
-      await initiateManualPayment(cart.id, paymentMethod)
+      await initiateManualPayment(cart.id, paymentMethod, paymentMethod === "mobile_money" ? paymentRef.trim().toUpperCase() : undefined)
 
       const { order: createdOrder, error: completeError } = await completeCart(cart.id)
       if (completeError) throw new Error(completeError)
 
       setOrder(createdOrder)
+      setPayAmount(Number(createdOrder?.total ?? cart.total ?? cart.subtotal ?? 0))
       setStep("confirmation")
     } catch (err: any) {
       setError(err?.message || "Une erreur est survenue. Réessayez.")
@@ -225,12 +229,26 @@ export default function CommandePage() {
               onSelect={() => setPaymentMethod("cash_on_delivery")}
             />
             <PaymentOption
+              label="Mobile Money (MTN MoMo / Orange Money)"
+              description="Payez maintenant avec le code marchand ; nous confirmons votre paiement."
+              checked={paymentMethod === "mobile_money"}
+              onSelect={() => setPaymentMethod("mobile_money")}
+            />
+            <PaymentOption
               label="Paiement en boutique"
               description="Réglez au retrait, avec le code de retrait fourni à la confirmation."
               checked={paymentMethod === "in_store"}
               onSelect={() => setPaymentMethod("in_store")}
             />
           </div>
+
+          {paymentMethod === "mobile_money" && (
+            <MobileMoneyInstructions
+              amount={Number(cart?.total ?? cart?.subtotal ?? 0)}
+              reference={paymentRef}
+              onReferenceChange={setPaymentRef}
+            />
+          )}
 
           {error && (
             <p className="mt-4 rounded-lg bg-rose-soft px-3.5 py-2.5 text-xs font-semibold text-rose-deep">
@@ -249,7 +267,7 @@ export default function CommandePage() {
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={(USE_POINTS && !selectedPointId) || submitting}
+              disabled={(USE_POINTS && !selectedPointId) || submitting || (paymentMethod === "mobile_money" && !isValidReference(paymentRef))}
               className="flex-1 rounded-full bg-rose py-3.5 text-sm font-bold text-white shadow-glow transition-all hover:scale-[1.02] hover:bg-teal active:scale-95 disabled:opacity-60"
             >
               {submitting ? "Un instant…" : "Confirmer la commande"}
@@ -266,7 +284,9 @@ export default function CommandePage() {
             enregistrée.
             {paymentMethod === "cash_on_delivery"
               ? " Vous réglerez à la livraison."
-              : " Vous réglerez au retrait en boutique."}
+              : paymentMethod === "mobile_money"
+                ? ` Nous vérifions votre paiement Mobile Money (ID : ${paymentRef.trim().toUpperCase()}).`
+                : " Vous réglerez au retrait en boutique."}
           </p>
           {selectedPoint ? (
             <p className="mt-3 text-sm text-ink-soft">
@@ -281,7 +301,11 @@ export default function CommandePage() {
           )}
           {!selectedPoint && whatsapp && (
             <a
-              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Bonjour, je viens de passer la commande #${order.display_id}. Pouvez-vous me confirmer les frais de livraison ?`)}`}
+              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(
+                paymentMethod === "mobile_money"
+                  ? `Bonjour, je viens de payer la commande #${order.display_id} par Mobile Money (${formatFCFA(payAmount)}), ID de transaction : ${paymentRef.trim().toUpperCase()}. Pouvez-vous me confirmer les frais de livraison ?`
+                  : `Bonjour, je viens de passer la commande #${order.display_id}. Pouvez-vous me confirmer les frais de livraison ?`
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-5 inline-block rounded-full bg-[#25D366] px-7 py-3.5 text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"

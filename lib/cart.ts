@@ -135,10 +135,12 @@ export async function addShippingMethod(cartId: string, optionId: string) {
  */
 export async function initiateManualPayment(
   cartId: string,
-  method: "cash_on_delivery" | "in_store"
+  method: "cash_on_delivery" | "in_store" | "mobile_money",
+  // Mobile Money : ID de la transaction saisi par la cliente, à comparer avec l'historique marchand.
+  reference?: string
 ) {
   const { cart } = await sdk.store.cart.update(cartId, {
-    metadata: { payment_method: method },
+    metadata: { payment_method: method, ...(reference ? { payment_reference: reference } : {}) },
   })
   await sdk.store.payment.initiatePaymentSession(cart, {
     provider_id: "pp_system_default",
